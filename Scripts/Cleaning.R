@@ -1,22 +1,22 @@
 library(dplyr)
 df<-read.csv("~/mtnProject/Data/RouteData.csv")
 
-df$routes.type<-as.character(df$routes.type)
-df$routes.type<-ifelse(grepl("Aid", df$routes.type), "Aid",
-                ifelse(grepl("Ice", df$routes.type)|grepl("Snow", df$routes.type)|grepl("Mixed", df$routes.type),"Ice",
-                ifelse(grepl("Boulder",df$routes.type),"Boulder",
-                ifelse(grepl("Trad",df$routes.type),"Trad",
-                ifelse(grepl("Sport", df$routes.type),"Sport",
-                ifelse(grepl("TR", df$routes.type),"TR","XXX"))))))
+df$Type<-as.character(df$routes.type)
+df$Type<-ifelse(grepl("Aid", df$Type), "Aid",
+                ifelse(grepl("Ice", df$Type)|grepl("Snow", df$Type)|grepl("Mixed", df$Type),"Ice",
+                ifelse(grepl("Boulder",df$Type),"Boulder",
+                ifelse(grepl("Trad",df$Type),"Trad",
+                ifelse(grepl("Sport", df$Type),"Sport",
+                ifelse(grepl("TR", df$Type),"TR","XXX"))))))
 
 #remove routes with no Type and remove ice routes
-df<-df %>% filter(routes.type!="XXX")%>% filter(routes.type!="Ice")
+df<-df %>% filter(df$Type!="XXX")%>% filter(df$Type!="Ice")
 
 #do the dificulty now
 unique(df$routes.rating)
 df[df$routes.rating=="5.1",]
 
-df$difficulty<-#elite
+df$Difficulty<-#elite
   ifelse(grepl("5.13", df$routes.rating)|
            grepl("5.14", df$routes.rating)|
            grepl("5.15", df$routes.rating)|
@@ -85,7 +85,7 @@ df<-df %>% filter(routes.rating!="XXX")
 
 #add safety scale
 
-df$safety<-ifelse(grepl("PG", df$routes.rating), "PG13",
+df$Safety<-ifelse(grepl("PG", df$routes.rating), "PG13",
                   ifelse(grepl("R",df$routes.rating ),"R",
                   ifelse(grepl("X",df$routes.rating ),"X", "Safe")))
              
