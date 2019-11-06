@@ -2,8 +2,10 @@ library(tidyverse)
 library(lme4)
 library(rstanarm)
 library(leaflet)
+library(rsconnect)
 #df<-read_csv("~/mtnProject/DataOutput/RouteDataCleaned.csv")
 #df<-df[,-c(1:2)]
+load(file="./fittyApp.rda")
 
 ui<-shinyUI(navbarPage("Climbing Data Interactive Plot Demo",
                        tabPanel("Model Explorer",
@@ -12,7 +14,7 @@ ui<-shinyUI(navbarPage("Climbing Data Interactive Plot Demo",
                                                 p("Examine the Variable Outcomes!"),
                                                 br(),
                                                 h4("Instructions"),
-                                                p("SOME INSTRUCTIONS"))),
+                                                p("Choose your input values"))),
                                 hr(),
                                 fluidRow(sidebarPanel(width = 3,
                                                       h4("Difficulty"),
@@ -47,8 +49,8 @@ output$Forecast<- renderPlot({
     minv<-min(post)
     maxv<- max(post)
     
-    plot(histy, main=paste("Median Visitation Estimate = ", format(medv,big.mark = ",")),
-         xlab="Number of Total Visitors", xlim=c(minv,maxv),ylab="Percentage of Samples",col="blue",freq=FALSE)
+    plot(histy, main=paste("Median use Estimate = ", format(medv,big.mark = ",")),
+         xlab="Number of Total Climbers", xlim=c(minv,maxv),ylab="Percentage of Samples",col="blue",freq=FALSE)
     abline(v = median(post),
            col = "black",
            lwd = 3)
@@ -64,7 +66,7 @@ output$Forecast<- renderPlot({
     abline(v=lwrbound1,col="orange",lty=2,lwd=3)
     
     
-    legend(x = "right", 
+    legend(x = "topright", 
            c("Median",paste("50% Credibility Interval:",format(lwrbound1,big.mark=","), "-" ,format(upbound1,big.mark=","))),
            col =  c("black","orange"),lty=c(1,2), box.lty=8,
            lwd = c(2,2)

@@ -1,0 +1,12 @@
+name: InteractivePlotDemo
+title: InteractivePlotDemo
+username:
+account: mattclarknewaccount
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1432548
+bundleId: 2568937
+url: https://mattclarknewaccount.shinyapps.io/InteractivePlotDemo/
+when: 1573060882.31996
+asMultiple: FALSE
+asStatic: FALSE
