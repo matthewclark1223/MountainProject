@@ -1,45 +1,52 @@
-df<-read.csv("~/mtnProject/Data/RouteData.csv",stringsAsFactors = F)
-library(dplyr)
+library(tidyverse)
 library(lme4)
 library(rstanarm)
-dfsub<-df%>%filter(routes.type %in% c("Trad", "Sport", "Boulder", "TR"))
-fit<-lm(routes.starVotes~routes.stars, data=dfsub)
-summary(fit)
+df<-read_csv("~/mtnProject/DataOutput/RouteDataCleaned.csv")
+df<-df[,-c(1:2)]
 
-#try a heierarchical model, leave out the location for now
-fit<-glmer(routes.starVotes~routes.stars+(1|routes.type)+(1|routes.pitches),family="poisson", data=dfsub)
-summary(fit)
+#create a standardize function which puts each variable on the scale fo a caegorical variable
+stdize<-function(x) {(x-mean(x))/(2*sd(x))}
 
-#now try with stars as a factor...this takes a long time
-fit<-glmer(routes.starVotes~as.factor(routes.stars)+(1|routes.type)+(1|routes.pitches),family="poisson", data=dfsub)
-summary(fit)
 
-#try with a negative binomial distribution
-fit2<-glmer.nb(routes.starVotes~routes.stars+(1|routes.type)+(1|routes.pitches), data=dfsub)
+#make sure factors vs characters are being handled properly
+df$Stars<-factor(df$Stars, levels=c("0","1","2","3","4","5"))
+
+df$Safety<-factor(df$Safety, levels=c("Safe" ,"PG13", "R" , "X" ))
+
+df$Difficulty<-factor(df$Difficulty, levels=c("Beginner" ,"Intermediate", "Advanced" , "Elite" ))
+
+#based on plots, we need different intercepts for safety
+#different intercepts and slopes for Type
+
 
 #now try with location as a random efect
-fity<-stan_glmer(routes.starVotes~routes.stars+(1|routes.type)+(1|routes.pitches)+(1|routes.location),family="poisson", data=dfsub[1:300,])
-summary(fity)
-
-
-system.time(fit<-glmer.nb(routes.starVotes~routes.stars+(1|routes.type)+(1|routes.pitches), data=dfsub)
-)
-
+fit<-glmer(routes.starVotes~Stars+(1|Type)+(1|Difficulty)+(1|routes.location)+(1|Safety),
+           family="poisson", data=df)
+summary(fit)
 
 #go bayesian
 options(mc.cores = parallel::detectCores())
-options(mc.cores = 1)
-fit<-stan_glmer(routes.starVotes~as.factor(routes.stars)+(1|routes.type)+
-                  (1|routes.pitches),family="poisson", data=dfsub[1:200,])
+
+fitty<-stan_glmer(routes.starVotes~Stars+(1|Type)+(1|Difficulty)+(1|routes.location)+(1|Safety),
+      family="poisson", data=df[c(1:200),])
+
+fitty<-glmer(routes.starVotes~Stars+(Stars|Type)+(1|Difficulty)+(1|Safety),
+                  family="poisson", data=df[sample(nrow(df),1000),])
+#aic ^^ 40389.8
+
+fitty<-glmer.nb(routes.starVotes~Stars+(1|Type)+(1|Difficulty)+(1|routes.location), data=df[1:5000,])
+#The above model gives an error and suggests to rescale variables...try rescaling them
 
 
+fitty<-stan_glmer.nb(routes.starVotes~Stars+(1|Type)+
+                  (1|Difficulty)+(1|routes.location), data=df[1:2000,])
+#ran this ^^ and left, should work!
+save(fitty, file="fitty.rda")
 
-system.time(fity<-glmer(routes.starVotes~routes.stars+(1|routes.type)+(1|routes.pitches)+(1|routes.location),family="poisson", data=dfsub))
 
-summary(fity)
+####
 
+fitty<-stan_glmer.nb(routes.starVotes~Stars+(1|Type)+
+                       (1|Difficulty)+(1|routes.location), data=df[1:10000,])
 
-
-dfsub$Starz<-ifelse(dfsub$routes.stars %in% c("4.5","4.6","4.7","4.8","4.9","5"),"5",
-                    ifesle(dfsub$routes.stars %in% c("4.4","4.3","4.3","4.2","4.1","4","3.9","3.8","3.7","3.6","3.5"),"4",
-                         ifelse  ))
+#left this!^

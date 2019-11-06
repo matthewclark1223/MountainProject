@@ -10,7 +10,7 @@ df$Type<-ifelse(grepl("Aid", df$Type), "Aid",
                 ifelse(grepl("TR", df$Type),"TR","XXX"))))))
 
 #remove routes with no Type and remove ice routes
-df<-df %>% filter(df$Type!="XXX")%>% filter(df$Type!="Ice")
+df<-df %>% filter(df$Type!="XXX"&df$Type!="Ice")
 
 #do the dificulty now
 unique(df$routes.rating)
@@ -81,7 +81,7 @@ df$Difficulty<-#elite
                         grepl("easy", df$routes.rating)|
                         grepl("V2", df$routes.rating), "Beginner","XXX"))))
                       
-df<-df %>% filter(routes.rating!="XXX") 
+df<-df %>% filter(Difficulty!="XXX") 
 
 #add safety scale
 
