@@ -4,10 +4,11 @@ library(rstanarm)
 library(leaflet)
 library(rsconnect)
 library(shinythemes)
-#df<-read_csv("~/mtnProject/DataOutput/RouteDataCleaned.csv")
-#df<-df[,-c(1:2)]
+
+#load the model created in another file 
 load(file="./fittyApp.rda")
 
+#make the user interface
 ui<-shinyUI(navbarPage(theme=shinytheme("cerulean"),"Climbing Data Interactive Plot Demo",
                        tabPanel("Model Explorer",
                                 fluidRow(column(12,
@@ -31,25 +32,25 @@ ui<-shinyUI(navbarPage(theme=shinytheme("cerulean"),"Climbing Data Interactive P
                        
 )))
 
-
+#make the server object
 
 server <- function(input, output) {
 #Make Forecast Plots
 output$Forecast<- renderPlot({
-    
+    #draw the posterior sample
     post<-(posterior_predict(
         fitty,data.frame(Stars=input$stars,Type=input$"type", Difficulty=input$"difficulty",
                          Safety=input$"safety"),draws=2000))
-    
+    #initiate the histogram of the posterior sample
     histy = hist(post,breaks=50,plot=FALSE) 
     histy$density = histy$counts/sum(histy$counts)*100
-    #
+    #numbers for the credibility intervals
     n1 <- 25 
     n2<-75
     medv<-round(median(post),2)
     minv<-min(post)
     maxv<- max(post)
-    
+    #plot the histogram
     plot(histy, main=paste("Median Climber Estimate = ", format(medv,big.mark = ",")),
          xlab="Number of Total Climbers", xlim=c(minv,maxv),ylab="Percentage of Samples",col="#b2df8a",freq=FALSE)
     abline(v = median(post),
