@@ -16,7 +16,7 @@ save(fitty, file="fittyApp.rda")
 ####dont rerun^^^
 load(file="~/MtnProject/fittyApp.rda")
 post<-(posterior_predict(
-  fitty,data.frame(Stars=3,Type="Sport", Difficulty="Intermediate",
+  fit,data.frame(Stars=3,Type="Sport", Difficulty="Intermediate",
                  Safety="Safe"),draws=2000))
 
 histy = hist(post,breaks=50,plot=FALSE) 
